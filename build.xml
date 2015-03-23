@@ -8,6 +8,9 @@
         <fileset dir="${play.path}/framework/lib">
                 <include name="*.jar"/>
         </fileset>
+        <fileset dir="${play.path}/framework">
+            <include name="*.jar"/>
+        </fileset>
         <fileset dir="lib">
             <include name="*.jar"/>
         </fileset>
@@ -37,7 +40,7 @@
 
     <target name="compile">
         <mkdir dir="tmp/classes" />
-        <javac srcdir="src" destdir="tmp/classes" target="1.5" debug="true">
+        <javac srcdir="src" destdir="tmp/classes" target="1.6" source="1.6" debug="true">
             <classpath refid="project.classpath" />
         </javac>
     </target>

@@ -14,11 +14,10 @@ import play.templates.Template;
 import play.vfs.VirtualFile;
 
 /**
- * ExcelFormat extends PlayFramework Sessoin.format according to http accept
+ * ExcelFormat extends PlayFramework Session.format according to http accept
  * header
  * 
  * @author luog
- * 
  */
 public class ExcelControllerHelper extends Controller {
 

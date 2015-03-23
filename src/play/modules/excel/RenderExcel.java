@@ -121,7 +121,7 @@ public class RenderExcel extends Result {
         }
     }
     
-    public static Promise<RenderExcel> renderAsync(VirtualFile file, final Map<String, Object> beans, final String fileName) {
+    public static Promise<RenderExcel> renderAsync(final VirtualFile file, final Map<String, Object> beans, final String fileName) {
         final String fn = fileName == null ? fileName_(file.relativePath()) : fileName;
         return new Job<RenderExcel>(){
             @Override

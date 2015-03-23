@@ -23,14 +23,7 @@
  */
 package play.modules.excel;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.apache.commons.codec.net.URLCodec;
-
 import play.PlayPlugin;
 import play.exceptions.UnexpectedException;
 import play.mvc.Http.Header;
@@ -41,12 +34,16 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 
 public class Plugin extends PlayPlugin {
     
-    public static final String VERSION = "1.2.3";
-
-    public static PlayPlugin templateLoader = null;
+    public static PlayPlugin templateLoader;
     
     private final static Pattern p_ = Pattern.compile(".*\\.(xls|xlsx)");
     @Override
@@ -122,8 +119,8 @@ public class Plugin extends PlayPlugin {
     
     public static class ExcelTemplate extends Template {
         
-        private File file = null;
-        private RenderExcel r_ = null;
+        private File file;
+        private RenderExcel r_;
         
         public ExcelTemplate(VirtualFile file) {
             this.name = file.relativePath();

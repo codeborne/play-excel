@@ -1,4 +1,30 @@
-self: play -> excel 1.2.4
+self: play -> excel 1.2.5
 
 require:
     - play 1.2+
+
+    - net.sf.jxls -> jxls-core 1.0.6:
+        exclude:
+          - commons-logging
+          - commons-beanutils
+          - commons-codec
+          - stax
+
+    - net.sf.jxls -> jxls-reader 1.0.6:
+        exclude:
+          - commons-logging
+          - commons-beanutils
+          - commons-codec
+          - stax
+
+    - org.apache.poi -> poi 3.11:
+        exclude:
+          - commons-codec
+          - stax
+
+    - org.apache.poi -> poi-ooxml 3.11:
+        exclude:
+          - commons-codec
+          - stax
+
+    - commons-digester -> commons-digester 2.1

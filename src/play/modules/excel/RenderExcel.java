@@ -1,14 +1,7 @@
 package play.modules.excel;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-
 import net.sf.jxls.transformer.XLSTransformer;
-
 import org.apache.poi.ss.usermodel.Workbook;
-
 import play.Logger;
 import play.Play;
 import play.exceptions.UnexpectedException;
@@ -19,6 +12,11 @@ import play.mvc.Http.Response;
 import play.mvc.Scope.RenderArgs;
 import play.mvc.results.Result;
 import play.vfs.VirtualFile;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * 200 OK with application/excel
@@ -33,28 +31,18 @@ public class RenderExcel extends Result {
     public static final String RA_ASYNC = "__EXCEL_ASYNC__";
     public static final String CONF_ASYNC = "excel.async";
 
-    private static VirtualFile tmplRoot = null;
-    String templateName = null;
-    String fileName = null; // recommended report file name
-    Map<String, Object> beans = null;
+    VirtualFile file;
+    String fileName; // recommended report file name
+    Map<String, Object> beans;
 
-    private static void initTmplRoot() {
-        VirtualFile appRoot = VirtualFile.open(Play.applicationPath);
-        String rootDef = "";
-        if (Play.configuration.containsKey("excel.template.root"))
-            rootDef = (String) Play.configuration.get("excel.template.root");
-        tmplRoot = appRoot.child(rootDef);
+    public RenderExcel(VirtualFile file, Map<String, Object> beans) {
+        this(file, beans, null);
     }
 
-    public RenderExcel(String templateName, Map<String, Object> beans) {
-        this(templateName, beans, null);
-    }
-
-    public RenderExcel(String templateName, Map<String, Object> beans,
-            String fileName) {
-        this.templateName = templateName;
+    public RenderExcel(VirtualFile file, Map<String, Object> beans, String fileName) {
+        this.file = file;
         this.beans = beans;
-        this.fileName = fileName == null ? fileName_(templateName) : fileName;
+        this.fileName = fileName == null ? fileName_(file.relativePath()) : fileName;
     }
     
     public String getFileName() {
@@ -62,13 +50,13 @@ public class RenderExcel extends Result {
     }
 
     public static boolean async() {
-        Object o = null;
+        Object o;
         if (RenderArgs.current().data.containsKey(RA_ASYNC)) {
             o = RenderArgs.current().get(RA_ASYNC);
         } else {
             o = Play.configuration.get(CONF_ASYNC);
         }
-        boolean async = false;
+        boolean async;
         if (null == o)
             async = false;
         else if (o instanceof Boolean)
@@ -99,10 +87,7 @@ public class RenderExcel extends Result {
             Logger.debug("use sync excel rendering");
             long start = System.currentTimeMillis();
             try {
-                if (null == tmplRoot) {
-                    initTmplRoot();
-                }
-                InputStream is = tmplRoot.child(templateName).inputstream();
+                InputStream is = file.inputstream();
                 Workbook workbook = new XLSTransformer()
                         .transformXLS(is, beans);
                 workbook.write(response.out);
@@ -121,14 +106,11 @@ public class RenderExcel extends Result {
         }
     }
 
-    private byte[] excel = null;
+    private byte[] excel;
 
     public void preRender() {
         try {
-            if (null == tmplRoot) {
-                initTmplRoot();
-            }
-            InputStream is = tmplRoot.child(templateName).inputstream();
+            InputStream is = file.inputstream();
             Workbook workbook = new XLSTransformer().transformXLS(is, beans);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             workbook.write(os);
@@ -139,12 +121,12 @@ public class RenderExcel extends Result {
         }
     }
     
-    public static Promise<RenderExcel> renderAsync(final String templateName, final Map<String, Object> beans, final String fileName) {
-        final String fn = fileName == null ? fileName_(templateName) : fileName;
+    public static Promise<RenderExcel> renderAsync(VirtualFile file, final Map<String, Object> beans, final String fileName) {
+        final String fn = fileName == null ? fileName_(file.relativePath()) : fileName;
         return new Job<RenderExcel>(){
             @Override
             public RenderExcel doJobWithResult() throws Exception {
-                RenderExcel excel = new RenderExcel(templateName, beans, fn);
+                RenderExcel excel = new RenderExcel(file, beans, fn);
                 excel.preRender();
                 return excel;
             }

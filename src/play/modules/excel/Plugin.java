@@ -34,7 +34,6 @@ import play.mvc.results.Result;
 import play.templates.Template;
 import play.vfs.VirtualFile;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -46,6 +45,7 @@ public class Plugin extends PlayPlugin {
     public static PlayPlugin templateLoader;
     
     private final static Pattern p_ = Pattern.compile(".*\\.(xls|xlsx)");
+
     @Override
     public Template loadTemplate(VirtualFile file) {
         if (!p_.matcher(file.getName()).matches()) return null;
@@ -77,7 +77,7 @@ public class Plugin extends PlayPlugin {
                 request.format = "xlsx";
         }
     }
-    
+
     /*
      * Set response header if needed
      */
@@ -118,13 +118,12 @@ public class Plugin extends PlayPlugin {
     }
     
     public static class ExcelTemplate extends Template {
-        
-        private File file;
+        private VirtualFile file;
         private RenderExcel r_;
         
         public ExcelTemplate(VirtualFile file) {
-            this.name = file.relativePath();
-            this.file = file.getRealFile();
+          this.file = file;
+          this.name = file.relativePath();
         }
         
         public ExcelTemplate(RenderExcel render) {
@@ -133,12 +132,12 @@ public class Plugin extends PlayPlugin {
 
         @Override
         public void compile() {
-            if (!file.canRead()) throw new UnexpectedException("template file not readable: " + name);
+            if (!file.getRealFile().canRead()) throw new UnexpectedException("template file not readable: " + name);
         }
 
         @Override
         protected String internalRender(Map<String, Object> args) {
-            throw null == r_ ? new RenderExcel(name, args) : r_;
+            throw null == r_ ? new RenderExcel(file, args) : r_;
         }
     }
 

@@ -24,7 +24,7 @@ public class ExcelControllerHelper extends Controller {
     // constants copied from ActionInvoker
     public static Template loadTemplate(VirtualFile file) {
         if (RenderExcel.async()) {
-            Promise<RenderExcel> render = RenderExcel.renderAsync(file.relativePath(), Scope.RenderArgs.current().data, null);
+            Promise<RenderExcel> render = RenderExcel.renderAsync(file, Scope.RenderArgs.current().data, null);
             await(render, new F.Action<RenderExcel>() {
                 @Override
                 public void invoke(RenderExcel result) {
@@ -46,7 +46,7 @@ public class ExcelControllerHelper extends Controller {
         @Override
         public void doJob() {
             play.modules.excel.Plugin.templateLoader = new PlayPlugin() {
-                public play.templates.Template loadTemplate(VirtualFile file) {
+                @Override public play.templates.Template loadTemplate(VirtualFile file) {
                     return ExcelControllerHelper.loadTemplate(file);
                 }
             };
